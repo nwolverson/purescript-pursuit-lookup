@@ -1,3 +1,4 @@
 .psc-package
 .vscode/
 output/
+bower_components/
