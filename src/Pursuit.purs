@@ -2,14 +2,15 @@ module Pursuit where
 
 import Prelude
 
-import Control.Monad.Aff (Aff)
 import Data.Argonaut (class DecodeJson, Json, decodeJson, (.?))
 import Data.Argonaut.Decode ((.??))
 import Data.Array (filter)
 import Data.Either (either)
 import Data.Maybe (Maybe(..))
 import Data.MediaType.Common (applicationJSON)
-import Network.HTTP.Affjax (AJAX, Affjax, affjax, defaultRequest)
+import Effect.Aff (Aff)
+import Network.HTTP.Affjax (Affjax, affjax, defaultRequest)
+import Network.HTTP.Affjax.Response (json)
 import Network.HTTP.RequestHeader (RequestHeader(..))
 
 newtype PursuitSearchInfo = PursuitSearchInfo
@@ -52,23 +53,23 @@ instance decodeJsonPursuitSearchResult :: DecodeJson PursuitSearchResult where
       info <- obj .? "info"
       pure $ PursuitSearchResult { text, markup, url, version, package, info }
 
-pursuitRequest :: forall e a. String -> Affjax e Json
-pursuitRequest text = affjax $ defaultRequest
+pursuitRequest :: String -> Affjax Json
+pursuitRequest text = affjax json $ defaultRequest
   { url = "https://pursuit.purescript.org/search?q=" <> text
   , headers = [ Accept applicationJSON ]
   }
 
-pursuitSearchRequest :: forall eff. String -> Aff ( ajax :: AJAX | eff ) (Array PursuitSearchResult)
+pursuitSearchRequest :: String -> Aff (Array PursuitSearchResult)
 pursuitSearchRequest text = do
   res <- pursuitRequest text
   let decoded = decodeJson res.response
-  pure $ either (pure []) id $ decoded
+  pure $ either (pure []) identity $ decoded
 
-pursuitModuleSearchRequest :: forall eff. String -> Aff ( ajax :: AJAX | eff ) (Array PursuitSearchResult)
+pursuitModuleSearchRequest :: String -> Aff (Array PursuitSearchResult)
 pursuitModuleSearchRequest text = do
   res <- pursuitRequest text
   let decoded = decodeJson res.response
-      results = either (pure []) id $ decoded
+      results = either (pure []) identity $ decoded
   pure $ filter isModule results
 
   where
