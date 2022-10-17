@@ -3,7 +3,7 @@ module Pursuit where
 import Prelude
 
 import Affjax (Error)
-import Affjax as Affjax
+import Affjax.Node as Affjax
 import Affjax.RequestHeader (RequestHeader(..))
 import Affjax.ResponseFormat (json)
 import Data.Argonaut (class DecodeJson, Json, decodeJson, (.:), (.:?))
