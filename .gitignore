@@ -1,4 +1,3 @@
-.psc-package
-.vscode/
+.psc-ide-port
+.spago/
 output/
-bower_components/
